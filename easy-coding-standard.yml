@@ -1,0 +1,43 @@
+imports:
+    - { resource: vendor/symplify/easy-coding-standard/config/php70.yml }
+    - { resource: vendor/symplify/easy-coding-standard/config/php71.yml }
+    - { resource: vendor/symplify/easy-coding-standard/config/psr2.yml }
+    - { resource: vendor/symplify/easy-coding-standard/config/symfony.yml }
+    - { resource: vendor/symplify/easy-coding-standard/config/symfony-risky.yml }
+    - { resource: vendor/symplify/easy-coding-standard/config/symplify.yml }
+    - { resource: vendor/symplify/easy-coding-standard/config/common.yml }
+
+parameters:
+    indentation: tab
+    skip:
+        PHP_CodeSniffer\Standards\PSR2\Sniffs\ControlStructures\ControlStructureSpacingSniff.SpacingAfterOpenBrace:
+        SlevomatCodingStandard\Sniffs\TypeHints\TypeHintDeclarationSniff.MissingPropertyTypeHint:
+        PHP_CodeSniffer\Standards\Squiz\Sniffs\WhiteSpace\ControlStructureSpacingSniff.SpacingAfterOpenBrace:
+    exclude_checkers:
+        - Symplify\CodingStandard\Fixer\ClassNotation\LastPropertyAndFirstMethodSeparationFixer
+        - Symplify\CodingStandard\Fixer\LineLength\LineLengthFixer
+        - Symplify\CodingStandard\Fixer\Naming\ExceptionNameFixer
+        - Symplify\CodingStandard\Fixer\Naming\PropertyNameMatchingTypeFixer
+        - Symplify\CodingStandard\Fixer\Php\ClassStringToClassConstantFixer
+        - Symplify\CodingStandard\Fixer\Solid\FinalInterfaceFixer
+        - Symplify\CodingStandard\Sniffs\Architecture\ExplicitExceptionSniff
+        - Symplify\CodingStandard\Sniffs\CleanCode\ForbiddenStaticFunctionSniff
+        - Symplify\CodingStandard\Sniffs\Commenting\VarConstantCommentSniff
+        - Symplify\CodingStandard\Sniffs\DependencyInjection\NoClassInstantiationSniff
+        - Symplify\CodingStandard\Sniffs\Naming\AbstractClassNameSniff
+        - Symplify\CodingStandard\Sniffs\Naming\ClassNameSuffixByParentSniff
+        - Symplify\CodingStandard\Sniffs\Naming\InterfaceNameSniff
+        - Symplify\CodingStandard\Sniffs\Naming\TraitNameSniff
+        - PhpCsFixer\Fixer\ControlStructure\YodaStyleFixer
+        - PhpCsFixer\Fixer\LanguageConstruct\DeclareEqualNormalizeFixer
+        - PhpCsFixer\Fixer\Operator\UnaryOperatorSpacesFixer
+        - PhpCsFixer\Fixer\PhpTag\BlankLineAfterOpeningTagFixer
+        - PhpCsFixer\Fixer\PhpUnit\PhpUnitStrictFixer
+        - PhpCsFixer\Fixer\Strict\StrictComparisonFixer
+        - PhpCsFixer\Fixer\PhpUnit\PhpUnitMethodCasingFixer
+
+services:
+    SlevomatCodingStandard\Sniffs\TypeHints\DeclareStrictTypesSniff: ~
+    Symplify\CodingStandard\Sniffs\CleanCode\CognitiveComplexitySniff:
+        properties:
+            maxCognitiveComplexity: 7
