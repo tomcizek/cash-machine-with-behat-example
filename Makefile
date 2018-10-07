@@ -13,3 +13,7 @@ stan:
 
 test:
 	vendor/bin/phpunit --configuration phpunit.xml src
+
+behat:
+	vendor/bin/behat
+

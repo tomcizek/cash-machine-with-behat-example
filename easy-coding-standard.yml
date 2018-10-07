@@ -13,6 +13,8 @@ parameters:
         PHP_CodeSniffer\Standards\PSR2\Sniffs\ControlStructures\ControlStructureSpacingSniff.SpacingAfterOpenBrace:
         SlevomatCodingStandard\Sniffs\TypeHints\TypeHintDeclarationSniff.MissingPropertyTypeHint:
         PHP_CodeSniffer\Standards\Squiz\Sniffs\WhiteSpace\ControlStructureSpacingSniff.SpacingAfterOpenBrace:
+        SlevomatCodingStandard\Sniffs\TypeHints\TypeHintDeclarationSniff.MissingParameterTypeHint:
+            - 'features/Contexts/CashMachineContext.php'
     exclude_checkers:
         - Symplify\CodingStandard\Fixer\ClassNotation\LastPropertyAndFirstMethodSeparationFixer
         - Symplify\CodingStandard\Fixer\LineLength\LineLengthFixer

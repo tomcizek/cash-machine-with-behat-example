@@ -1,0 +1,8 @@
+default:
+    autoload:
+        '': '%paths.base%/features/Contexts'
+    suites:
+        cash_machine:
+            paths: [ "%paths.base%/features" ]
+            contexts:
+                - CashMachine\Features\Contexts\CashMachineContext:

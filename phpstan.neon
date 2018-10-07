@@ -3,3 +3,4 @@ includes:
 
 parameters:
 	ignoreErrors:
+		- "~Method CashMachine\\\\Features\\\\Contexts\\\\CashMachineContext.* has parameter \\$arg1 with no typehint specified.~"

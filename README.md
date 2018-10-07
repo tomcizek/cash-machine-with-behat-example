@@ -6,3 +6,5 @@ Cash machine with behat example
 [![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/tomcizek/cash-machine-with-behat-example.svg?style=flat-square)](https://scrutinizer-ci.com/g/tomcizek/cash-machine-with-behat-example)
 
 
++ [How to use behat](docs/behat.md)
+
