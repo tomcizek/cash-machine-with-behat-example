@@ -16,6 +16,7 @@ script:
   - make stan
   - make cs
   - vendor/bin/phpunit --configuration phpunit.xml src --coverage-clover=coverage.clover
+  - vendor/bin/behat
 
 after_script:
   # upload clover.xml file to Scrutinizer to analyze it
