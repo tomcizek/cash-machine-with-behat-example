@@ -1,15 +1,15 @@
 cs:
-	./vendor/bin/ecs check src features
+	./vendor/bin/ecs check src features lib
 
 nccs:
-	./vendor/bin/ecs check src features --clear-cache
+	./vendor/bin/ecs check src features lib --clear-cache
 
 fix:
-	./vendor/bin/ecs check src features --fix
+	./vendor/bin/ecs check src features lib --fix
 
 stan:
 	composer dump
-	./vendor/bin/phpstan analyse --configuration=phpstan.neon --level=max --verbose src features
+	./vendor/bin/phpstan analyse --configuration=phpstan.neon --level=max --verbose src features lib
 
 test:
 	vendor/bin/phpunit --configuration phpunit.xml src

@@ -10,7 +10,8 @@
     "autoload": {
       "psr-4": {
         "CashMachine\\Features\\Contexts\\": "features/Contexts",
-        "CashMachine\\": "src"
+        "CashMachine\\": "src",
+        "Library\\": "lib"
       }
     },
     "require": {
