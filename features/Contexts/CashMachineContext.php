@@ -5,6 +5,7 @@ namespace CashMachine\Features\Contexts;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Tester\Exception\PendingException;
 use CashMachine\CashMachine\Tests\DomainModel\FixtureBuilders\CardBuilder;
+use CashMachine\CashMachine\Tests\DomainModel\FixtureBuilders\CashMachineBuilder;
 use Library\MoneyFactory;
 
 /**
@@ -17,9 +18,15 @@ final class CashMachineContext implements Context
 	 */
 	private $cardBuilder;
 
+	/**
+	 * @var CashMachineBuilder
+	 */
+	private $cashMachineBuilder;
+
 	public function __construct()
 	{
 		$this->cardBuilder = CardBuilder::withSomeParameters();
+		$this->cashMachineBuilder = CashMachineBuilder::withSomeParameters();
 	}
 
 	/**
@@ -43,7 +50,9 @@ final class CashMachineContext implements Context
 	 */
 	public function theMachineContainsEnoughMoney(): void
 	{
-		throw new PendingException();
+		$this->cashMachineBuilder->setBalance(
+			MoneyFactory::CZK(666666666)
+		);
 	}
 
 	/**
