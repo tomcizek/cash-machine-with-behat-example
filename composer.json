@@ -12,5 +12,10 @@
         "CashMachine\\Features\\Contexts\\": "features/Contexts",
         "CashMachine\\": "src"
       }
+    },
+    "require": {
+        "ramsey/uuid": "^3.8",
+        "symfony/messenger": "^4.1",
+        "money/money": "^2.0"
     }
 }
