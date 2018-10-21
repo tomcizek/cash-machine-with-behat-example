@@ -57,6 +57,17 @@ final class CashMachineTest extends TestCase
 		$this->whenRequestMoney($cashMachine, $card, MoneyFactory::CZK(1000));
 	}
 
+	public function testRequestMoneyWithCard_WithValidCardAndSufficientBalance_ShouldNotDispenseMoney(): void
+	{
+		$cashMachine = $this->givenCashMachineWithBalance(1000);
+
+		$card = $this->givenCard(true, 1000);
+
+		$this->whenRequestMoney($cashMachine, $card, MoneyFactory::CZK(1000));
+
+		$this->thenCashMachineBalanceIs($cashMachine, 0);
+	}
+
 	private function whenInitializeWithAmount(CashMachineBuilder $builder): CashMachine
 	{
 		return $builder->build();
@@ -97,5 +108,10 @@ final class CashMachineTest extends TestCase
 	private function willFailWith(string $exceptionClassName): void
 	{
 		$this->expectException($exceptionClassName);
+	}
+
+	private function thenCashMachineBalanceIs(CashMachine $cashMachine, float $balance): void
+	{
+		self::assertEquals(MoneyFactory::CZK($balance), $cashMachine->getBalance());
 	}
 }

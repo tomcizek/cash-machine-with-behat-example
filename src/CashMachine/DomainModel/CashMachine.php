@@ -54,6 +54,10 @@ final class CashMachine
 			throw new CardHasInsufficientBalanceException();
 		}
 
-		throw new CashMachineHasInsufficientBalanceException();
+		if ($this->balance->lessThan($money)) {
+			throw new CashMachineHasInsufficientBalanceException();
+		}
+
+		$this->balance = $this->balance->subtract($money);
 	}
 }
