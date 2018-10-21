@@ -4,6 +4,7 @@ namespace CashMachine\CashMachine\Tests\DomainModel;
 
 use CashMachine\CashMachine\DomainModel\CashMachine;
 use CashMachine\CashMachine\DomainModel\CashMachine\Card;
+use CashMachine\CashMachine\DomainModel\CashMachine\Exception\CardHasInsufficientBalanceException;
 use CashMachine\CashMachine\DomainModel\CashMachine\Exception\CardIsNotValidException;
 use CashMachine\CashMachine\Tests\DomainModel\FixtureBuilders\CardBuilder;
 use CashMachine\CashMachine\Tests\DomainModel\FixtureBuilders\CashMachineBuilder;
@@ -29,6 +30,17 @@ final class CashMachineTest extends TestCase
 		$card = $this->givenCard(false, 10000);
 
 		$this->willFailWith(CardIsNotValidException::class);
+
+		$this->whenRequestMoney($cashMachine, $card, MoneyFactory::CZK(1000));
+	}
+
+	public function testRequestMoneyWithCard_WhenCardHasInsufficientBalance_ShouldNotDispenseMoney(): void
+	{
+		$cashMachine = $this->givenCashMachineWithBalance(100000);
+
+		$card = $this->givenCard(true, 100);
+
+		$this->willFailWith(CardHasInsufficientBalanceException::class);
 
 		$this->whenRequestMoney($cashMachine, $card, MoneyFactory::CZK(1000));
 	}
