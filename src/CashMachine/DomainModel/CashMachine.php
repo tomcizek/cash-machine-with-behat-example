@@ -5,6 +5,7 @@ namespace CashMachine\CashMachine\DomainModel;
 use CashMachine\CashMachine\DomainModel\CashMachine\Card;
 use CashMachine\CashMachine\DomainModel\CashMachine\Exception\CardHasInsufficientBalanceException;
 use CashMachine\CashMachine\DomainModel\CashMachine\Exception\CardIsNotValidException;
+use CashMachine\CashMachine\DomainModel\CashMachine\Exception\CashMachineHasInsufficientBalanceException;
 use Money\Money;
 use Ramsey\Uuid\UuidInterface;
 
@@ -49,6 +50,10 @@ final class CashMachine
 			throw new CardIsNotValidException();
 		}
 
-		throw new CardHasInsufficientBalanceException();
+		if ($card->getBalance()->lessThan($money)) {
+			throw new CardHasInsufficientBalanceException();
+		}
+
+		throw new CashMachineHasInsufficientBalanceException();
 	}
 }
