@@ -11,6 +11,7 @@ use CashMachine\CardManagement\Policy\CashMachineWithholdPolicy;
 use CashMachine\CardManagement\Tests\DomainModel\Card\FixtureBuilders\CardBuilder;
 use CashMachine\CashMachine\DomainModel\CashMachine\CashMachineRepository;
 use CashMachine\CashMachine\DomainModel\CashMachine\DispenseMoney\DispenseMoneyFromCashMachineCommandHandler;
+use CashMachine\CashMachine\DomainModel\CashMachine\RequestMoney\CardHasInsufficientBalanceMoneyRequestDeclined;
 use CashMachine\CashMachine\DomainModel\CashMachine\RequestMoney\MoneyRequestFromCashMachineAccepted;
 use CashMachine\CashMachine\DomainModel\CashMachine\RequestMoney\RequestMoneyFromCashMachineCommand;
 use CashMachine\CashMachine\DomainModel\CashMachine\RequestMoney\RequestMoneyFromCashMachineCommandHandler;
@@ -21,6 +22,7 @@ use CashMachine\CashMachine\Infrastructure\RealWorldOutput\SpyCardReturner;
 use CashMachine\CashMachine\Infrastructure\RealWorldOutput\SpyMoneyDispenser;
 use CashMachine\CashMachine\Policy\DispenseMoneyFromAtmPolicy;
 use CashMachine\CashMachine\Policy\ReturnCardFromAtmPolicy;
+use CashMachine\CashMachine\Policy\ShowMessagePolicy;
 use CashMachine\CashMachine\Tests\DomainModel\FixtureBuilders\CashMachineBuilder;
 use Library\MessageBus\SimpleEventBus;
 use Library\MoneyFactory;
@@ -65,6 +67,11 @@ final class CashMachineContext extends Assert implements Context
 	 * @var SpyCardReturner
 	 */
 	private $spyCardReturner;
+
+	/**
+	 * @var ShowMessagePolicy
+	 */
+	private $showMessagePolicy;
 
 	public function __construct()
 	{
@@ -159,7 +166,11 @@ final class CashMachineContext extends Assert implements Context
 	 */
 	public function theAtmShouldSayThereAreInsufficientFunds(): void
 	{
-		throw new PendingException();
+		$messages = $this->showMessagePolicy->getShowedMessages();
+
+		self::assertCount(1, $messages, 'No message has been shown.');
+
+		self::assertEquals('Insufficient card balance.', $messages[0]);
 	}
 
 	/**
@@ -208,12 +219,18 @@ final class CashMachineContext extends Assert implements Context
 
 		$returnCardHandler = new ReturnCardFromCashMachineCommandHandler($this->spyCardReturner);
 
+		$this->showMessagePolicy = new ShowMessagePolicy();
+
 		$eventBus = new SimpleEventBus(
 			[
 				MoneyRequestFromCashMachineAccepted::class => [
 					new DispenseMoneyFromAtmPolicy($dispenseMoneyFromCashMachineCommandHandler),
 					new CashMachineWithholdPolicy($withholdAmountFromCardCommandHandler),
 					new ReturnCardFromAtmPolicy($returnCardHandler),
+				],
+				CardHasInsufficientBalanceMoneyRequestDeclined::class => [
+					new ReturnCardFromAtmPolicy($returnCardHandler),
+					$this->showMessagePolicy,
 				],
 			]
 		);
