@@ -149,7 +149,9 @@ final class CashMachineContext extends Assert implements Context
 	 */
 	public function theAtmShouldNotDispenseAnyMoney(): void
 	{
-		throw new PendingException();
+		$dispensedAmounts = $this->spyMoneyDispenser->getDispensedAmounts();
+
+		self::assertCount(0, $dispensedAmounts, 'Atm actually dispensed some money.');
 	}
 
 	/**
