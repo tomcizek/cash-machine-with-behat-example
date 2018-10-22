@@ -19,7 +19,7 @@ final class DispenseMoneyFromAtmPolicy
 		$this->dispenseMoneyFromCashMachineCommandHandler = $dispenseMoneyFromCashMachineCommandHandler;
 	}
 
-	public function process(MoneyRequestFromCashMachineAccepted $event): void
+	public function onMoneyRequestFromCashMachineAccepted(MoneyRequestFromCashMachineAccepted $event): void
 	{
 		$command = DispenseMoneyFromCashMachineCommand::fromValues(
 			$event->getCashMachineId(),

@@ -18,7 +18,7 @@ final class CashMachineWithholdPolicy
 		$this->handler = $withholdAmountFromCardCommandHandler;
 	}
 
-	public function process(MoneyRequestFromCashMachineAccepted $event): void
+	public function onMoneyRequestFromCashMachineAccepted(MoneyRequestFromCashMachineAccepted $event): void
 	{
 		$command = WithholdAmountFromCardCommand::fromValues(
 			$event->getCardId(),

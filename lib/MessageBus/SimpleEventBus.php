@@ -2,6 +2,8 @@
 
 namespace Library\MessageBus;
 
+use ReflectionClass;
+
 final class SimpleEventBus extends EventBus
 {
 	/**
@@ -25,8 +27,10 @@ final class SimpleEventBus extends EventBus
 		if (! isset($this->listeners[get_class($message)])) {
 			return;
 		}
+		$reflect = new ReflectionClass($message);
+		$methodName = 'on' . $reflect->getShortName();
 		foreach ($this->listeners[get_class($message)] as $listener) {
-			$listener->process($message);
+			$listener->{$methodName}($message);
 		}
 	}
 }
