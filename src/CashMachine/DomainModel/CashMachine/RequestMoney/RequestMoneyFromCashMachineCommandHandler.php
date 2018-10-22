@@ -3,6 +3,7 @@
 namespace CashMachine\CashMachine\DomainModel\CashMachine\RequestMoney;
 
 use CashMachine\CashMachine\DomainModel\CashMachine\CashMachineRepository;
+use CashMachine\CashMachine\DomainModel\CashMachine\Exception\CardHasInsufficientBalanceException;
 use Library\MessageBus\EventBus;
 
 final class RequestMoneyFromCashMachineCommandHandler
@@ -38,7 +39,17 @@ final class RequestMoneyFromCashMachineCommandHandler
 
 		$card = $this->getCardByNumberQuery->query($command->getCardNumber());
 
-		$cashMachine->requestMoney($card, $command->getAmount());
+		try {
+			$cashMachine->requestMoney($card, $command->getAmount());
+		} catch (CardHasInsufficientBalanceException $e) {
+			$this->eventBus->dispatch(
+				CardHasInsufficientBalanceMoneyRequestDeclined::fromValues(
+					$cashMachine->getId(),
+					$card->getId(),
+					$command->getAmount()
+				)
+			);
+		}
 
 		$this->eventBus->dispatch(
 			MoneyRequestFromCashMachineAccepted::fromValues(
