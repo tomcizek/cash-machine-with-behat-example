@@ -2,6 +2,7 @@
 
 namespace CashMachine\CashMachine\Policy;
 
+use CashMachine\CashMachine\DomainModel\CashMachine\RequestMoney\CardHasInsufficientBalanceMoneyRequestDeclined;
 use CashMachine\CashMachine\DomainModel\CashMachine\RequestMoney\MoneyRequestFromCashMachineAccepted;
 use CashMachine\CashMachine\DomainModel\CashMachine\ReturnCard\ReturnCardFromCashMachineCommand;
 use CashMachine\CashMachine\DomainModel\CashMachine\ReturnCard\ReturnCardFromCashMachineCommandHandler;
@@ -20,6 +21,14 @@ final class ReturnCardFromAtmPolicy
 	}
 
 	public function onMoneyRequestFromCashMachineAccepted(MoneyRequestFromCashMachineAccepted $event): void
+	{
+		$command = ReturnCardFromCashMachineCommand::fromCashMachineId(
+			$event->getCashMachineId()
+		);
+		$this->returnCardFromCashMachineCommandHandler->handle($command);
+	}
+
+	public function onCardHasInsufficientBalanceMoneyRequestDeclined(CardHasInsufficientBalanceMoneyRequestDeclined $event): void
 	{
 		$command = ReturnCardFromCashMachineCommand::fromCashMachineId(
 			$event->getCashMachineId()
