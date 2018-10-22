@@ -14,10 +14,13 @@ use CashMachine\CashMachine\DomainModel\CashMachine\DispenseMoney\DispenseMoneyF
 use CashMachine\CashMachine\DomainModel\CashMachine\RequestMoney\MoneyRequestFromCashMachineAccepted;
 use CashMachine\CashMachine\DomainModel\CashMachine\RequestMoney\RequestMoneyFromCashMachineCommand;
 use CashMachine\CashMachine\DomainModel\CashMachine\RequestMoney\RequestMoneyFromCashMachineCommandHandler;
+use CashMachine\CashMachine\DomainModel\CashMachine\ReturnCard\ReturnCardFromCashMachineCommandHandler;
 use CashMachine\CashMachine\Infrastructure\FilePersistence\FileCashMachineRepository;
 use CashMachine\CashMachine\Infrastructure\FilePersistence\FileGetCardByNumberQuery;
+use CashMachine\CashMachine\Infrastructure\RealWorldOutput\SpyCardReturner;
 use CashMachine\CashMachine\Infrastructure\RealWorldOutput\SpyMoneyDispenser;
 use CashMachine\CashMachine\Policy\DispenseMoneyFromAtmPolicy;
+use CashMachine\CashMachine\Policy\ReturnCardFromAtmPolicy;
 use CashMachine\CashMachine\Tests\DomainModel\FixtureBuilders\CashMachineBuilder;
 use Library\MessageBus\SimpleEventBus;
 use Library\MoneyFactory;
@@ -57,6 +60,11 @@ final class CashMachineContext extends Assert implements Context
 	 * @var SpyMoneyDispenser
 	 */
 	private $spyMoneyDispenser;
+
+	/**
+	 * @var SpyCardReturner
+	 */
+	private $spyCardReturner;
 
 	public function __construct()
 	{
@@ -133,7 +141,7 @@ final class CashMachineContext extends Assert implements Context
 	 */
 	public function theCardShouldBeReturned(): void
 	{
-		throw new PendingException();
+		self::assertCount(1, $this->spyCardReturner->getReturned());
 	}
 
 	/**
@@ -194,11 +202,16 @@ final class CashMachineContext extends Assert implements Context
 
 		$withholdAmountFromCardCommandHandler = new WithholdAmountFromCardCommandHandler($this->cardRepository);
 
+		$this->spyCardReturner = new SpyCardReturner();
+
+		$returnCardHandler = new ReturnCardFromCashMachineCommandHandler($this->spyCardReturner);
+
 		$eventBus = new SimpleEventBus(
 			[
 				MoneyRequestFromCashMachineAccepted::class => [
 					new DispenseMoneyFromAtmPolicy($dispenseMoneyFromCashMachineCommandHandler),
 					new CashMachineWithholdPolicy($withholdAmountFromCardCommandHandler),
+					new ReturnCardFromAtmPolicy($returnCardHandler),
 				],
 			]
 		);
