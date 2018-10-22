@@ -4,14 +4,29 @@ namespace CashMachine\Features\Contexts;
 
 use Behat\Behat\Context\Context;
 use Behat\Behat\Tester\Exception\PendingException;
-use CashMachine\CashMachine\Tests\DomainModel\FixtureBuilders\CardBuilder;
+use CashMachine\CardManagement\DomainModel\Card\WithholdMoney\WithholdAmountFromCardCommandHandler;
+use CashMachine\CardManagement\DomainModel\CardRepository;
+use CashMachine\CardManagement\Infrastructure\FilePersistence\FileCardRepository;
+use CashMachine\CardManagement\Policy\CashMachineWithholdPolicy;
+use CashMachine\CardManagement\Tests\DomainModel\Card\FixtureBuilders\CardBuilder;
+use CashMachine\CashMachine\DomainModel\CashMachine\CashMachineRepository;
+use CashMachine\CashMachine\DomainModel\CashMachine\DispenseMoney\DispenseMoneyFromCashMachineCommandHandler;
+use CashMachine\CashMachine\DomainModel\CashMachine\RequestMoney\MoneyRequestFromCashMachineAccepted;
+use CashMachine\CashMachine\DomainModel\CashMachine\RequestMoney\RequestMoneyFromCashMachineCommand;
+use CashMachine\CashMachine\DomainModel\CashMachine\RequestMoney\RequestMoneyFromCashMachineCommandHandler;
+use CashMachine\CashMachine\Infrastructure\FilePersistence\FileCashMachineRepository;
+use CashMachine\CashMachine\Infrastructure\FilePersistence\FileGetCardByNumberQuery;
+use CashMachine\CashMachine\Infrastructure\RealWorldOutput\SpyMoneyDispenser;
+use CashMachine\CashMachine\Policy\DispenseMoneyFromAtmPolicy;
 use CashMachine\CashMachine\Tests\DomainModel\FixtureBuilders\CashMachineBuilder;
+use Library\MessageBus\SimpleEventBus;
 use Library\MoneyFactory;
+use PHPUnit\Framework\Assert;
 
 /**
  * Defines application features from the specific context.
  */
-final class CashMachineContext implements Context
+final class CashMachineContext extends Assert implements Context
 {
 	/**
 	 * @var CardBuilder
@@ -23,10 +38,29 @@ final class CashMachineContext implements Context
 	 */
 	private $cashMachineBuilder;
 
+	/**
+	 * @var CashMachineRepository
+	 */
+	private $cashMachineRepository;
+
+	/**
+	 * @var CardRepository
+	 */
+	private $cardRepository;
+
+	/**
+	 * @var RequestMoneyFromCashMachineCommandHandler
+	 */
+	private $requestMoneyFromCashMachineCommandHandler;
+
+	/**
+	 * @var SpyMoneyDispenser
+	 */
+	private $spyMoneyDispenser;
+
 	public function __construct()
 	{
-		$this->cardBuilder = CardBuilder::withSomeParameters();
-		$this->cashMachineBuilder = CashMachineBuilder::withSomeParameters();
+		$this->buildDependencies();
 	}
 
 	/**
@@ -60,7 +94,16 @@ final class CashMachineContext implements Context
 	 */
 	public function theCardHolderRequestsCzk($arg1): void
 	{
-		throw new PendingException();
+		$this->cashMachineRepository->save($this->cashMachineBuilder->build());
+		$this->cardRepository->save($this->cardBuilder->build());
+
+		$this->requestMoneyFromCashMachineCommandHandler->handle(
+			RequestMoneyFromCashMachineCommand::fromValues(
+				$this->cashMachineBuilder->getId(),
+				$this->cardBuilder->getNumber(),
+				MoneyFactory::CZK((float) $arg1)
+			)
+		);
 	}
 
 	/**
@@ -68,7 +111,11 @@ final class CashMachineContext implements Context
 	 */
 	public function theAtmShouldDispenseCzk($arg1): void
 	{
-		throw new PendingException();
+		$dispensedAmounts = $this->spyMoneyDispenser->getDispensedAmounts();
+
+		self::assertCount(1, $dispensedAmounts, 'Atm dispensed more than one time.');
+
+		self::assertEquals(MoneyFactory::CZK((float) $arg1), $dispensedAmounts[0]);
 	}
 
 	/**
@@ -76,7 +123,9 @@ final class CashMachineContext implements Context
 	 */
 	public function theCardBalanceShouldBeCzk($arg1): void
 	{
-		throw new PendingException();
+		$card = $this->cardRepository->load($this->cardBuilder->getId());
+
+		self::assertEquals(MoneyFactory::CZK((float) $arg1), $card->getBalance());
 	}
 
 	/**
@@ -125,5 +174,39 @@ final class CashMachineContext implements Context
 	public function theAtmShouldSayTheCardHasBeenRetained(): void
 	{
 		throw new PendingException();
+	}
+
+	private function buildDependencies(): void
+	{
+		$this->cardBuilder = CardBuilder::withSomeParameters();
+		$this->cashMachineBuilder = CashMachineBuilder::withSomeParameters();
+
+		$this->cashMachineRepository = new FileCashMachineRepository();
+
+		$this->cardRepository = new FileCardRepository();
+		$getCardByNumberQuery = new FileGetCardByNumberQuery($this->cardRepository);
+
+		$this->spyMoneyDispenser = new SpyMoneyDispenser();
+
+		$dispenseMoneyFromCashMachineCommandHandler = new DispenseMoneyFromCashMachineCommandHandler(
+			$this->spyMoneyDispenser
+		);
+
+		$withholdAmountFromCardCommandHandler = new WithholdAmountFromCardCommandHandler($this->cardRepository);
+
+		$eventBus = new SimpleEventBus(
+			[
+				MoneyRequestFromCashMachineAccepted::class => [
+					new DispenseMoneyFromAtmPolicy($dispenseMoneyFromCashMachineCommandHandler),
+					new CashMachineWithholdPolicy($withholdAmountFromCardCommandHandler),
+				],
+			]
+		);
+
+		$this->requestMoneyFromCashMachineCommandHandler = new RequestMoneyFromCashMachineCommandHandler(
+			$this->cashMachineRepository,
+			$getCardByNumberQuery,
+			$eventBus
+		);
 	}
 }
