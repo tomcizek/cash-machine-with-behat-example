@@ -5,7 +5,8 @@
         "symplify/easy-coding-standard": "^5.0",
         "phpstan/phpstan-strict-rules": "^0.10.1",
         "phpunit/phpunit": "^7.4",
-        "phpunit/php-code-coverage": "^6.0"
+        "phpunit/php-code-coverage": "^6.0",
+        "emuse/behat-html-formatter": "^0.1.0"
     },
     "autoload": {
       "psr-4": {

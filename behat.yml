@@ -6,3 +6,15 @@ default:
             paths: [ "%paths.base%/features" ]
             contexts:
                 - CashMachine\Features\Contexts\CashMachineContext:
+    formatters:
+        html:
+            output_path: "%paths.base%/temp"
+
+    extensions:
+        emuse\BehatHTMLFormatter\BehatHTMLFormatterExtension:
+            name: html
+            renderer: Twig
+            file_name: index
+            print_args: true
+            print_outp: true
+            loop_break: true
