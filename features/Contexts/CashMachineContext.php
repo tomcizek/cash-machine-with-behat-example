@@ -79,7 +79,7 @@ final class CashMachineContext extends Assert implements Context
 	}
 
 	/**
-	 * @Given the card balance is cZK :arg1
+	 * @Given the card balance is CZK :arg1
 	 */
 	public function theCardBalanceIsCzk($arg1): void
 	{
@@ -105,7 +105,7 @@ final class CashMachineContext extends Assert implements Context
 	}
 
 	/**
-	 * @When the Card Holder requests cZK :arg1
+	 * @When the Card Holder requests CZK :arg1
 	 */
 	public function theCardHolderRequestsCzk($arg1): void
 	{
@@ -122,7 +122,7 @@ final class CashMachineContext extends Assert implements Context
 	}
 
 	/**
-	 * @Then the ATM should dispense cZK :arg1
+	 * @Then the ATM should dispense CZK :arg1
 	 */
 	public function theAtmShouldDispenseCzk($arg1): void
 	{
@@ -134,7 +134,7 @@ final class CashMachineContext extends Assert implements Context
 	}
 
 	/**
-	 * @Then the card balance should be cZK :arg1
+	 * @Then the card balance should be CZK :arg1
 	 */
 	public function theCardBalanceShouldBeCzk($arg1): void
 	{
